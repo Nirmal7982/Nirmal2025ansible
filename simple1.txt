@@ -7,3 +7,4 @@ TRhis is great
 >>>>>>> parent of 613bf48 (commiting the file)
 =======
 >>>>>>> parent of 2efb25a (commmit)
+Second file
