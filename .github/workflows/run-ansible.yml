@@ -1,0 +1,17 @@
+name: Run Ansible Playbook on Ansible Server
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-playbook:
+    runs-on: self-hosted
+
+    steps:
+      - name: SSH to Ansible server and run playbook
+        run: |
+          ssh -o StrictHostKeyChecking=no nirmal@192.168.121.191 << 'EOF'
+            cd ~/Nirmal2025sansible
+            git pull
+            ansible-playbook git_check2.yaml
+          EOF
