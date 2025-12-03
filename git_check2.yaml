@@ -1,0 +1,54 @@
+---
+- name: This script to check if git is installed or not and update if git is installed
+  hosts: ubuntu
+  become: yes
+  gather_facts: false
+
+  tasks:
+
+  - name: To check the Git version
+    ansible.builtin.command: git --version
+    register: git_version
+    ignore_errors: yes
+
+  - name: If git version is installed
+    ansible.builtin.debug:
+     msg:  " The Git version is  {{ git_version.stdout }}"
+    when: git_version.rc == 0
+
+  - name: If git version is not installed
+    ansible.builtin.debug:
+      msg: " The Git is not installed. So we are ignoring this server"
+    when: git_version.rc != 0
+
+  - name: Need to update if git is installed
+    ansible.builtin.command: sudo apt update
+    when: git_version.rc == 0
+
+  - name: Once the update is completed. Need to reboot the server.
+    ansible.builtin.reboot:
+      reboot_timeout: 600
+    when: git_version.rc == 0
+
+  - name: Need to wait till the reboot is complete. So pausing the script.
+    ansible.builtin.pause:
+     seconds: 120
+
+  - name: Once the reboot is completed. Need to check the uptime.
+    ansible.builtin.command: uptime
+    register: uptime
+    when: git_version.rc == 0
+ 
+  - name: To display the output.
+    ansible.builtin.debug:
+      msg: "The git version for the server is {{ git_version.stdout}} and the uptime of the server is {{ uptime.stdout }}"
+    when: git_version.rc == 0
+  
+  - name: To save the output in text file.
+    delegate_to: localhost
+    become: yes
+    copy:
+      content: "The git version for the server is {{ git_version.stdout}} and the uptime of the server is {{ uptime.stdout }}"
+      dest: "/tmp/output.txt"
+    when: git_version.rc == 0
+
